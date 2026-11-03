@@ -13,19 +13,19 @@ namespace MixedOrchestration.Executors;
 public sealed class JailbreakDetectExecutor : Executor<ChatMessage, DetectionResult>
 {
     private readonly AIAgent _detectorAgent;
-    private readonly AgentThread _thread;
+    private readonly AgentSession _session;
 
     public JailbreakDetectExecutor(AIAgent agent) : base("JailbreakDetectExecutor")
     {
         // 创建 Agent 和对话线程
         this._detectorAgent = agent;
-        this._thread = this._detectorAgent.GetNewThread();
+        this._session = this._detectorAgent.CreateSessionAsync().GetAwaiter().GetResult();
     }
 
     public override async ValueTask<DetectionResult> HandleAsync(ChatMessage message, IWorkflowContext context, CancellationToken cancellationToken = default)
     {
         // Invoke the Jailbreak Detection Agent
-        var response = await this._detectorAgent.RunAsync(message, this._thread, cancellationToken: cancellationToken);
+        var response = await this._detectorAgent.RunAsync(message, this._session, cancellationToken: cancellationToken);
         var detectionResult = JsonSerializer.Deserialize<DetectionResult>(response.Text)
             ?? throw new InvalidOperationException("❌ 反序列化检测结果失败");
         var detectMessage = detectionResult.IsJailbreak ? "DETECTED" : "SAFE";

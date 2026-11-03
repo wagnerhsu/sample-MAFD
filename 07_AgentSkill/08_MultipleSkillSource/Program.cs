@@ -49,7 +49,7 @@ AgentSkillsProvider BuildProviderForRole(EmployeeRole role)
         // 全局技能库（带缓存）
         .UseSource(cachedGlobalSource)
         // 角色感知过滤
-        .UseFilter(s => UserRoleHelper.IsSkillVisibleTo(s, role))
+        .UseFilter((s, _) => UserRoleHelper.IsSkillVisibleTo(s, role))
         // 自定义 Prompt：企业内部语气
         .UsePromptTemplate("""
             你是 Contoso 集团的企业服务助手。
@@ -76,8 +76,9 @@ foreach (var role in Enum.GetValues<EmployeeRole>())
     var provider = BuildProviderForRole(role);
     var srcField = typeof(AgentSkillsProvider).GetField("_source", BindingFlags.Instance | BindingFlags.NonPublic);
     var src = (AgentSkillsSource?)srcField?.GetValue(provider);
-    var skills = src is null ? 
-        new List<AgentSkill>() : (await src.GetSkillsAsync()).ToList();
+    var skillsContext = new AgentSkillsSourceContext(chatClient.AsAIAgent(), session: null);
+    var skills = src is null ?
+        new List<AgentSkill>() : (await src.GetSkillsAsync(skillsContext)).ToList();
 
     Console.WriteLine("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     Console.WriteLine($"👤 [{role}] 可见技能（{skills.Count} 个）：");

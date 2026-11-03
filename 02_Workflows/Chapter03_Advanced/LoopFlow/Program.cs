@@ -68,7 +68,7 @@ Console.WriteLine("✅ Loop Workflow 构建完成");
 // Step4. Execute the Workflow
 foreach (var workflow in workflows)
 {
-    await using (var run = await InProcessExecution.StreamAsync(workflow, QualityCheckSignal.Init))
+    await using (var run = await InProcessExecution.Default.RunStreamingAsync(workflow, QualityCheckSignal.Init))
     {
         var adaptiveTimeline = new List<object>();
 

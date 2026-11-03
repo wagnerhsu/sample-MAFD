@@ -37,7 +37,7 @@ var publisher = new DocumentPublisherExecutor(publisherId);
 // Step3. Create Workflow
 var workflow = new WorkflowBuilder(splitter)
     .AddFanOutEdge(splitter, [.. summarizers])
-    .AddFanInEdge([.. summarizers], reducer)
+    .AddFanInBarrierEdge([.. summarizers], reducer)
     .AddEdge(reducer, publisher)
     .WithOutputFrom(publisher)
     .Build();
@@ -55,7 +55,7 @@ string manuscript = """
 第四段：对外联动方面，已与供应链伙伴同步威胁情报，建议对固件OTA签名策略进行交叉验证，并提升告警共享频率。
 """;
 Console.WriteLine("✅ 长文档样本文本已准备");
-await using (var spotlightRun = await InProcessExecution.StreamAsync(workflow, manuscript))
+await using (var spotlightRun = await InProcessExecution.Default.RunStreamingAsync(workflow, manuscript))
 {
     await foreach (WorkflowEvent evt in spotlightRun.WatchStreamAsync())
     {

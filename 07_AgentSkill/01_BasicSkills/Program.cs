@@ -23,9 +23,9 @@ Console.OutputEncoding = System.Text.Encoding.UTF8;
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Step1 创建 SkillsProvider — 从文件系统发现和加载 Skills
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-var skillsProvider = new FileAgentSkillsProvider(
-    skillPath: Path.Combine(Directory.GetCurrentDirectory(), "skills")
-);
+var skillsProvider = new AgentSkillsProviderBuilder()
+    .UseFileSkill(Path.Combine(Directory.GetCurrentDirectory(), "skills"))
+    .Build();
 Console.WriteLine("📂 Skills 已从文件系统加载");
 Console.WriteLine();
 

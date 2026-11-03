@@ -25,9 +25,11 @@ Console.OutputEncoding = System.Text.Encoding.UTF8;
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Step1 创建 SkillsProvider — 从文件系统发现和加载 Skills
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-var skillsProvider = new AgentSkillsProvider(
-    skillPath: Path.Combine(Directory.GetCurrentDirectory(), "skills"),
-    scriptRunner: SubprocessScriptRunner.RunAsync);
+var skillsProvider = new AgentSkillsProviderBuilder()
+    .UseFileSkill(
+        Path.Combine(Directory.GetCurrentDirectory(), "skills"),
+        scriptRunner: SubprocessScriptRunner.RunAsync)
+    .Build();
 Console.WriteLine("✅ AgentSkillsProvider 创建成功");
 Console.WriteLine("📂 自动注册工具: load_skill, read_skill_resource, run_skill_script");
 Console.WriteLine();

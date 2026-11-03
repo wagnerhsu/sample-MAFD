@@ -25,12 +25,10 @@ Console.OutputEncoding = System.Text.Encoding.UTF8;
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Step1 创建 SkillsProvider — 从文件系统发现和加载 Skills
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-var skillsProvider = new FileAgentSkillsProvider(
-    skillPath: Path.Combine(Directory.GetCurrentDirectory(), "skills"),
-    options: new FileAgentSkillsProviderOptions
-    {
-        // 🔑 自定义提示词：引导模型加载技能后使用 run_shell 执行脚本
-        SkillsInstructionPrompt = """
+var skillsProvider = new AgentSkillsProviderBuilder()
+    .UseFileSkill(Path.Combine(Directory.GetCurrentDirectory(), "skills"))
+    // 🔑 自定义提示词：引导模型加载技能后使用 run_shell 执行脚本
+    .UseOptions(options => options.SkillsInstructionPrompt = """
         你可以使用以下技能获取领域知识和操作指引。
         每个技能提供专业指令、参考文档和可执行脚本。
 
@@ -45,9 +43,8 @@ var skillsProvider = new FileAgentSkillsProvider(
         4. 需要时使用 `read_skill_resource` 读取参考资料
         
         重要原则：先加载知识，再执行操作。
-        """
-    }
-);
+        """)
+    .Build();
 Console.WriteLine("✅ FileAgentSkillsProvider 创建成功（知识层）");
 Console.WriteLine("📂 自动注册工具: load_skill, read_skill_resource");
 Console.WriteLine();

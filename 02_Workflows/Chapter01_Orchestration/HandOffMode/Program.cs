@@ -44,7 +44,7 @@ while (true)
     messages.Add(new(ChatRole.User, userInput));
 
     // Execute workflow and process events
-    var response = await workflow.AsAgent().RunAsync(messages);
+    var response = await workflow.AsAIAgent().RunAsync(messages);
     Console.WriteLine($"Agent: {response}\n");
 
     // Add new messages to conversation history

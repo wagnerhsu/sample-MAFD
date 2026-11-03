@@ -29,19 +29,21 @@ var chatClient = new OpenAIClient(
 // Step2. Create related Agents & Executors
 var spamDetectionAgent = new ChatClientAgent(
     chatClient, 
-    new ChatClientAgentOptions(instructions: "You are a spam detection assistant that labels spam emails with reasons.")
+    new ChatClientAgentOptions
     {
         ChatOptions = new()
         {
+            Instructions = "You are a spam detection assistant that labels spam emails with reasons.",
             ResponseFormat = ChatResponseFormat.ForJsonSchema<DetectionResult>()
         }
     });
 var emailAssistantAgent = new ChatClientAgent(
     chatClient,
-    new ChatClientAgentOptions(instructions: "You are an enterprise email assistant. You can provide professional Chinese responses to user.")
+    new ChatClientAgentOptions
     {
         ChatOptions = new()
         {
+            Instructions = "You are an enterprise email assistant. You can provide professional Chinese responses to user.",
             ResponseFormat = ChatResponseFormat.ForJsonSchema<EmailResponse>()
         }
     });
@@ -73,7 +75,7 @@ static async Task RunConditionalWorkflowAsync(
     Console.WriteLine($"📬 测试场景：{scenarioName}");
     Console.WriteLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     var chatMessage = new ChatMessage(ChatRole.User, emailContent);
-    await using var run = await InProcessExecution.StreamAsync(conditionalWorkflow, chatMessage);
+    await using var run = await InProcessExecution.Default.RunStreamingAsync(conditionalWorkflow, chatMessage);
     await run.TrySendMessageAsync(new TurnToken(emitEvents: true));
 
     await foreach (WorkflowEvent evt in run.WatchStreamAsync())

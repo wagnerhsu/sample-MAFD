@@ -81,11 +81,11 @@ Console.WriteLine("-------------------------------------------------------------
 Console.WriteLine($"测试案例 1: \"{testCases[0]}\"");
 Console.WriteLine("------------------------------------------------------------------------------");
 var workflow1 = workflowBuilder.Build();
-await using (var run1 = await InProcessExecution.StreamAsync(workflow1, testCases[0]))
+await using (var run1 = await InProcessExecution.Default.RunStreamingAsync(workflow1, testCases[0]))
 {
     await foreach (var evt in run1.WatchStreamAsync())
     {
-        if (evt is AgentRunUpdateEvent updateEvt && !string.IsNullOrEmpty(updateEvt.Update.Text))
+        if (evt is AgentResponseUpdateEvent updateEvt && !string.IsNullOrEmpty(updateEvt.Update.Text))
         {
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.Write(updateEvt.Update.Text);
@@ -109,11 +109,11 @@ Console.WriteLine("-------------------------------------------------------------
 Console.WriteLine($"测试案例 2: \"{testCases[1]}\"");
 Console.WriteLine("------------------------------------------------------------------------------");
 var workflow2 = workflowBuilder.Build();
-await using (var run2 = await InProcessExecution.StreamAsync(workflow2, testCases[1]))
+await using (var run2 = await InProcessExecution.Default.RunStreamingAsync(workflow2, testCases[1]))
 {
     await foreach (var evt in run2.WatchStreamAsync())
     {
-        if (evt is AgentRunUpdateEvent updateEvt && !string.IsNullOrEmpty(updateEvt.Update.Text))
+        if (evt is AgentResponseUpdateEvent updateEvt && !string.IsNullOrEmpty(updateEvt.Update.Text))
         {
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.Write(updateEvt.Update.Text);

@@ -11,19 +11,19 @@ namespace MixedOrchestration.Executors;
 public sealed class FinalOutputExecutor : Executor<DetectionResult, UserRequestResult>
 {
     private readonly AIAgent _responseOutputAgent;
-    private readonly AgentThread _thread;
+    private readonly AgentSession _session;
 
     public FinalOutputExecutor(AIAgent agent) : base("FinalOutput")
     {
         // 创建 Agent 和对话线程
         this._responseOutputAgent = agent;
-        this._thread = this._responseOutputAgent.GetNewThread();
+        this._session = this._responseOutputAgent.CreateSessionAsync().GetAwaiter().GetResult();
     }
 
     public override async ValueTask<UserRequestResult> HandleAsync(DetectionResult message, IWorkflowContext context, CancellationToken cancellationToken = default)
     {
         // 调用大模型获取最终回复
-        var response = await this._responseOutputAgent.RunAsync(message.UserInput, this._thread, cancellationToken: cancellationToken);
+        var response = await this._responseOutputAgent.RunAsync(message.UserInput, this._session, cancellationToken: cancellationToken);
         var requestResult = JsonSerializer.Deserialize<UserRequestResult>(response.Text)
             ?? throw new InvalidOperationException("❌ 反序列化处理结果失败");
 

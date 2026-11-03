@@ -30,30 +30,28 @@ var chatClient = new OpenAIClient(
 // Agents
 var spamDetectionAgent = new ChatClientAgent(
     chatClient,
-    new ChatClientAgentOptions(
-        instructions: @"你是一个垃圾邮件检测助手。判定规则：
+    new ChatClientAgentOptions
+    {
+        ChatOptions = new ChatOptions
+        {
+            Instructions = @"你是一个垃圾邮件检测助手。判定规则：
       
 - NotSpam: 明显的正常业务邮件（订单查询、售后咨询等）
 - Spam: 明显的垃圾邮件（诈骗、广告、钓鱼）
 - Uncertain: 无法明确判断，包含可疑元素但不确定（如含可疑链接但内容模糊）
 
-对于模棱两可的情况，倾向于标记为 Uncertain 以保证安全。"
-    )
-    {
-        ChatOptions = new ChatOptions
-        {
+对于模棱两可的情况，倾向于标记为 Uncertain 以保证安全。",
             ResponseFormat = ChatResponseFormat.ForJsonSchema<DetectionResult>()
         }
     }
 );
 var emailAssistantAgent = new ChatClientAgent(
     chatClient,
-    new ChatClientAgentOptions(
-        instructions: "你是一个企业邮件助手，为客户邮件生成专业、友好的中文回复。"
-    )
+    new ChatClientAgentOptions
     {
         ChatOptions = new ChatOptions
         {
+            Instructions = "你是一个企业邮件助手，为客户邮件生成专业、友好的中文回复。",
             ResponseFormat = ChatResponseFormat.ForJsonSchema<EmailResponse>()
         }
     }
@@ -108,7 +106,7 @@ static async Task RunWorkflowAsync(
     Console.WriteLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     Console.WriteLine($"📧 邮件内容：{emailContent.Substring(0, Math.Min(80, emailContent.Length))}...\n");
 
-    await using var run = await InProcessExecution.StreamAsync(
+    await using var run = await InProcessExecution.Default.RunStreamingAsync(
         workflow,
         new ChatMessage(ChatRole.User, emailContent)
     );

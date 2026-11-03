@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpClient().AddLogging();
 
 // Step1. Register AG-UI services
-builder.Services.AddAGUI();
+builder.Services.AddAGUIServer();
 
 var app = builder.Build();
 
@@ -35,7 +35,7 @@ var agent = chatClient.AsAIAgent(
 Console.WriteLine("✅ AI Agent 创建成功");
 
 // Step5. Mapping AG-UI Endpoints
-app.MapAGUI("/", agent);
+app.MapAGUIServer("/", agent);
 
 Console.WriteLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 Console.WriteLine("🚀 AG-UI Server 已启动");

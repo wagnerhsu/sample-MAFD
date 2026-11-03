@@ -36,10 +36,10 @@ var workflow = AgentWorkflowBuilder.BuildSequential(
 var userMessage = "Please help to introduce our new product: An eco-friendly stainless steel water bottle that keeps drinks cold for 24 hours.";
 Console.Write($"User: {userMessage}\n");
 // Execute the workflow via RunAsync
-//var response = await workflow.AsAgent().RunAsync(userMessage);
+//var response = await workflow.AsAIAgent().RunAsync(userMessage);
 //Console.WriteLine($"Agent: {response}");
 // Execute the workflow via StreamAsync with event tracking
-await using (StreamingRun run = await InProcessExecution.StreamAsync(workflow, userMessage))
+await using (StreamingRun run = await InProcessExecution.Default.RunStreamingAsync(workflow, userMessage))
 {
     await run.TrySendMessageAsync(new TurnToken(emitEvents: true)); // Enable event emitting
 
@@ -53,7 +53,7 @@ await using (StreamingRun run = await InProcessExecution.StreamAsync(workflow, u
     int stepNumber = 1;
     await foreach (WorkflowEvent evt in run.WatchStreamAsync())
     {
-        if (evt is AgentRunUpdateEvent updatedEvent)
+        if (evt is AgentResponseUpdateEvent updatedEvent)
         {
             stageOutput.Append($"{updatedEvent.Data} ");
         }

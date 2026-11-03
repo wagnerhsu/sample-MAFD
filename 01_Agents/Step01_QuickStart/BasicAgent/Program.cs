@@ -27,7 +27,7 @@ var azureOpenAIProvider = config.GetSection("AzureOpenAI").Get<OpenAIProvider>()
 //        new ApiKeyCredential(openAIProvider.ApiKey),
 //        new OpenAIClientOptions { Endpoint = new Uri(openAIProvider.Endpoint) })
 //    .GetChatClient(openAIProvider.ModelId)
-//    .CreateAIAgent(instructions: "You are good at telling jokes.", name: "Joker");
+//    .AsAIAgent(instructions: "You are good at telling jokes.", name: "Joker");
 //// Method 1: RunAsync
 //Console.WriteLine(await jokerAgent.RunAsync("Tell me a joke about a pirate."));
 //// Method 2: RunStreamingAsync
@@ -45,22 +45,22 @@ var azureOpenAIProvider = config.GetSection("AzureOpenAI").Get<OpenAIProvider>()
 //    new Uri(azureOpenAIProvider.Endpoint),
 //    new ApiKeyCredential(azureOpenAIProvider.ApiKey))
 //    .GetChatClient(azureOpenAIProvider.ModelId)
-//    .CreateAIAgent(instructions: "You are good at telling jokes.", name: "Joker");
+//    .AsAIAgent(instructions: "You are good at telling jokes.", name: "Joker");
 //Console.WriteLine(await jokerAgent.RunAsync("Tell me a joke about a pirate."));
 #endregion
 
 #region 03-Running the agent with multi-turn conversation
 /*
- * Hold a multi-turn conversation with the agent by creating multiple threads.
+ * Hold a multi-turn conversation with the agent by creating multiple sessions.
  */
-//var thread1 = jokerAgent.GetNewThread();
-//var thread2 = jokerAgent.GetNewThread();
+//var session1 = await jokerAgent.CreateSessionAsync();
+//var session2 = await jokerAgent.CreateSessionAsync();
 
-//Console.WriteLine(await jokerAgent.RunAsync("Tell me a joke about a pirate.", thread1) + Environment.NewLine);
-//Console.WriteLine(await jokerAgent.RunAsync("Now add some emojis to the joke and tell it in the voice of a pirate's parrot.", thread1) + Environment.NewLine);
+//Console.WriteLine(await jokerAgent.RunAsync("Tell me a joke about a pirate.", session1) + Environment.NewLine);
+//Console.WriteLine(await jokerAgent.RunAsync("Now add some emojis to the joke and tell it in the voice of a pirate's parrot.", session1) + Environment.NewLine);
 
-//Console.WriteLine(await jokerAgent.RunAsync("Tell me a joke about a robot.", thread2) + Environment.NewLine);
-//Console.WriteLine(await jokerAgent.RunAsync("Now add some emojis to the joke and tell it in the voice of a robot.", thread2) + Environment.NewLine);
+//Console.WriteLine(await jokerAgent.RunAsync("Tell me a joke about a robot.", session2) + Environment.NewLine);
+//Console.WriteLine(await jokerAgent.RunAsync("Now add some emojis to the joke and tell it in the voice of a robot.", session2) + Environment.NewLine);
 #endregion
 
 #region 04-Using function tools directly
@@ -68,7 +68,7 @@ var azureOpenAIProvider = config.GetSection("AzureOpenAI").Get<OpenAIProvider>()
 //        new ApiKeyCredential(openAIProvider.ApiKey),
 //        new OpenAIClientOptions { Endpoint = new Uri(openAIProvider.Endpoint) })
 //    .GetChatClient(openAIProvider.ModelId)
-//    .CreateAIAgent(instructions: "You are a helpful assistant", tools: [AIFunctionFactory.Create(WeatherServicePlugin.GetCurrentWeatherAsync)]);
+//    .AsAIAgent(instructions: "You are a helpful assistant", tools: [AIFunctionFactory.Create(WeatherServicePlugin.GetCurrentWeatherAsync)]);
 //Console.WriteLine(await agent.RunAsync("Tell me the weather like in Chengdu?"));
 #endregion
 
@@ -80,10 +80,10 @@ var azureOpenAIProvider = config.GetSection("AzureOpenAI").Get<OpenAIProvider>()
 //        new ApiKeyCredential(openAIProvider.ApiKey),
 //        new OpenAIClientOptions { Endpoint = new Uri(openAIProvider.Endpoint) })
 //    .GetChatClient(openAIProvider.ModelId)
-//    .CreateAIAgent(instructions: "You are a helpful assistant", tools: [approvalRequiredWeatherTool]);
+//    .AsAIAgent(instructions: "You are a helpful assistant", tools: [approvalRequiredWeatherTool]);
 
-//var thread = agent.GetNewThread();
-//var response = await agent.RunAsync("Tell me the weather like in Chengdu?", thread);
+//var session = await agent.CreateSessionAsync();
+//var response = await agent.RunAsync("Tell me the weather like in Chengdu?", session);
 //var userInputRequests = response.UserInputRequests.ToList();
 
 //while(userInputRequests.Count > 0)
@@ -100,7 +100,7 @@ var azureOpenAIProvider = config.GetSection("AzureOpenAI").Get<OpenAIProvider>()
 //        .ToList();
 
 //    // Pass the user input responses back to the agent for further processing.
-//    response = await agent.RunAsync(userInputResponses, thread);
+//    response = await agent.RunAsync(userInputResponses, session);
 
 //    userInputRequests = response.UserInputRequests.ToList();
 //}
@@ -112,6 +112,7 @@ var azureOpenAIProvider = config.GetSection("AzureOpenAI").Get<OpenAIProvider>()
 var schema = AIJsonUtilities.CreateJsonSchema(typeof(PersonInfo));
 var chatOptions = new ChatOptions()
 {
+    Instructions = "You are a helpful assistant.",
     ResponseFormat = ChatResponseFormat.ForJsonSchema(
         schema: schema,
         schemaName: "PersonInfo",
@@ -121,15 +122,15 @@ var agent = new OpenAIClient(
         new ApiKeyCredential(openAIProvider.ApiKey),
         new OpenAIClientOptions { Endpoint = new Uri(openAIProvider.Endpoint) })
     .GetChatClient(openAIProvider.ModelId)
-    .CreateAIAgent(new ChatClientAgentOptions()
+    .AsIChatClient()
+    .AsAIAgent(new ChatClientAgentOptions()
     {
         Name = "HelpfulAssistant",
-        Instructions = "You are a helpful assistant.",
         ChatOptions = chatOptions
     });
 
 var response = await agent.RunAsync("Please provide information about John Smith, who is a 35-year-old software engineer.");
-var pesonInfo = response.Deserialize<PersonInfo>(JsonSerializerOptions.Web);
+var pesonInfo = JsonSerializer.Deserialize<PersonInfo>(response.Text, JsonSerializerOptions.Web)!;
 Console.WriteLine("Assistant Output:");
 Console.WriteLine($"Name: {pesonInfo.Name}");
 Console.WriteLine($"Age: {pesonInfo.Age}");

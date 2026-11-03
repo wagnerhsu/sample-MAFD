@@ -5,6 +5,18 @@ Microsoft Agent Framework Demos is an open-source project collection designed fo
 This project comprises 20+ meticulously written blog articles, covering a complete learning path from fundamental concepts to advanced workflow orchestration.  
 It is particularly suitable for .NET developers who wish to master Microsoft's latest agent development framework.
 
+## Prerequisites
+- **.NET 10 SDK** — every sample targets `net10.0` (see `global.json` for the pinned SDK version)
+- **Microsoft Agent Framework 1.27.0** — the samples use the stable 1.27.0 line of `Microsoft.Agents.AI.*`.
+  A few packages have no stable release yet and track the matching prerelease of the same 1.27.0 line
+  (`Microsoft.Agents.AI.Declarative` → `1.27.0-rc1`, `Microsoft.Agents.AI.Hosting` /
+  `Microsoft.Agents.AI.DevUI` / `Microsoft.Agents.AI.Hosting.AGUI.AspNetCore` → `1.27.0-preview.261030.1`,
+  `Microsoft.Agents.AI.Hosting.OpenAI` → `1.27.0-alpha.261030.1`), and the A2A protocol SDK is
+  `A2A.AspNetCore 1.0.0-preview4`.
+
+Each sample reads its model credentials from `appsettings.json` plus an optional
+`appsettings.Secrets.json` (git-ignored) that you create locally with your `OpenAI` section.
+
 ## Blog Articles Index
 Below is the collection of the 20+ blog articles covered in this project:
 [https://edisontalk.cnblogs.com/collections/29894](https://www.cnblogs.com/edisontalk/collections/29894)

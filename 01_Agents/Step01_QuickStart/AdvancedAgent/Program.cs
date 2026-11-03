@@ -29,7 +29,7 @@ var openAIProvider = config.GetSection("OpenAI").Get<OpenAIProvider>();
 //        new ApiKeyCredential(openAIProvider.ApiKey),
 //        new OpenAIClientOptions { Endpoint = new Uri(openAIProvider.Endpoint) })
 //    .GetChatClient(openAIProvider.ModelId)
-//    .CreateAIAgent(
+//    .AsAIAgent(
 //        instructions: "You answer questions about the weather.",
 //        name: "WeatherAgent",
 //        description: "An agent that answers questions about the weather.",
@@ -39,7 +39,7 @@ var openAIProvider = config.GetSection("OpenAI").Get<OpenAIProvider>();
 //        new ApiKeyCredential(openAIProvider.ApiKey),
 //        new OpenAIClientOptions { Endpoint = new Uri(openAIProvider.Endpoint) })
 //    .GetChatClient(openAIProvider.ModelId)
-//    .CreateAIAgent(instructions: "You are a helpful assistant who responds message in Chinese.", tools: [weatherAgent.AsAIFunction()]);
+//    .AsAIAgent(instructions: "You are a helpful assistant who responds message in Chinese.", tools: [weatherAgent.AsAIFunction()]);
 //// Step3. Test the portal agent
 //Console.WriteLine(await mainAgent.RunAsync("What is the weather like in Chengdu?"));
 #endregion
@@ -49,7 +49,7 @@ var openAIProvider = config.GetSection("OpenAI").Get<OpenAIProvider>();
 //        new ApiKeyCredential(openAIProvider.ApiKey),
 //        new OpenAIClientOptions { Endpoint = new Uri(openAIProvider.Endpoint) })
 //    .GetChatClient(openAIProvider.ModelId)
-//    .CreateAIAgent(instructions: "You are good at telling jokes.", name: "Joker");
+//    .AsAIAgent(instructions: "You are good at telling jokes.", name: "Joker");
 //// Expose the agent as a MCP tool
 //var jokerMcpTool = McpServerTool.Create(jokerAgent.AsAIFunction());
 //// Create a MCP server and register the tool
@@ -70,26 +70,26 @@ var openAIProvider = config.GetSection("OpenAI").Get<OpenAIProvider>();
 //        new ApiKeyCredential(openAIProvider.ApiKey),
 //        new OpenAIClientOptions { Endpoint = new Uri(openAIProvider.Endpoint) })
 //    .GetChatClient(openAIProvider.ModelId)
-//    .CreateAIAgent(instructions: "You are good at telling jokes.", name: "Joker");
-//// Step2. Start a new thread for the agent conversation
-//var thread = jokerAgent.GetNewThread();
-//// Step3. Run the agent with a new thread
-//Console.WriteLine(await jokerAgent.RunAsync("Tell me a joke about a pirate.", thread));
+//    .AsAIAgent(instructions: "You are good at telling jokes.", name: "Joker");
+//// Step2. Start a new session for the agent conversation
+//var session = await jokerAgent.CreateSessionAsync();
+//// Step3. Run the agent with a new session
+//Console.WriteLine(await jokerAgent.RunAsync("Tell me a joke about a pirate.", session));
 //Console.WriteLine("==> Now user leaves the chat, system save the conversation to local storage.");
-//// Step4. Serialize the thread state to a JsonElement, so that it can be persisted for later use
-//var serializedThread = thread.Serialize();
-//// Step5. Save the serialized thread to a file (for demonstration purposes)
+//// Step4. Serialize the session state to a JsonElement, so that it can be persisted for later use
+//var serializedSession = await jokerAgent.SerializeSessionAsync(session);
+//// Step5. Save the serialized session to a file (for demonstration purposes)
 //var tempFilePath = Path.GetTempFileName();
-//await File.WriteAllTextAsync(tempFilePath, JsonSerializer.Serialize(serializedThread));
-//// Step6. Deserialize the thread state after loading from storage.
+//await File.WriteAllTextAsync(tempFilePath, JsonSerializer.Serialize(serializedSession));
+//// Step6. Deserialize the session state after loading from storage.
 //Console.WriteLine("==> Now user join the chat again, system starting to load last conversation.");
-//var reoladedSerializedThread = JsonSerializer.Deserialize<JsonElement>(await File.ReadAllTextAsync(tempFilePath));
-//var resumedThread = jokerAgent.DeserializeThread(reoladedSerializedThread);
-//// Step7. Run the agent with the resumed thread
-//Console.WriteLine(await jokerAgent.RunAsync("Now tell the same joke in the voice of a pirate, and add some emojis to the joke.", resumedThread));
+//var reoladedSerializedSession = JsonSerializer.Deserialize<JsonElement>(await File.ReadAllTextAsync(tempFilePath));
+//var resumedSession = await jokerAgent.DeserializeSessionAsync(reoladedSerializedSession);
+//// Step7. Run the agent with the resumed session
+//Console.WriteLine(await jokerAgent.RunAsync("Now tell the same joke in the voice of a pirate, and add some emojis to the joke.", resumedSession));
 #endregion
 
-#region 04-The 3rd party thread storage
+#region 04-The 3rd party session storage
 //// Create a shared in-memory vector store to store the chat messages.
 //var vectorStore = new InMemoryVectorStore();
 //// Create an AI agent that uses the vector store to persist its conversations.
@@ -97,39 +97,36 @@ var openAIProvider = config.GetSection("OpenAI").Get<OpenAIProvider>();
 //        new ApiKeyCredential(openAIProvider.ApiKey),
 //        new OpenAIClientOptions { Endpoint = new Uri(openAIProvider.Endpoint) })
 //    .GetChatClient(openAIProvider.ModelId)
-//    .CreateAIAgent(new ChatClientAgentOptions
+//    .AsAIAgent(new ChatClientAgentOptions
 //    {
 //        Name = "Joker",
 //        Instructions = "You are good at telling jokes.",
-//        ChatMessageStoreFactory = ctx =>
-//        {
-//            // Create a new chat message store for this agent that stores the messages in a vector store.
-//            // Each thread must get its own copy of the VectorChatMessageStore, since the store
-//            // also contains the id that the thread is stored under.
-//            return new VectorChatMessageStore(vectorStore, ctx.SerializedState, ctx.JsonSerializerOptions);
-//        }
+//        // Create a chat history provider for this agent that stores the messages in a vector store.
+//        // The provider keeps the id that the session is stored under in the session state,
+//        // so it round-trips automatically together with the serialized session.
+//        ChatHistoryProvider = new VectorChatHistoryProvider(vectorStore)
 //    });
-//// Start a new thread for the agent conversation.
-//var thread = jokerAgent.GetNewThread();
-//// Run the agent with a new thread.
+//// Start a new session for the agent conversation.
+//var session = await jokerAgent.CreateSessionAsync();
+//// Run the agent with a new session.
 //var userMessage = "Tell me a joke about a pirate.";
 //Console.WriteLine($"User> {userMessage}");
-//Console.WriteLine($"Agent> " + await jokerAgent.RunAsync(userMessage, thread));
+//Console.WriteLine($"Agent> " + await jokerAgent.RunAsync(userMessage, session));
 //// Assume user leaves the chat, system saves the conversation to vector storage.
 //Console.WriteLine("\n[DEBUG] Now user leaves the chat, system save the conversation to vector storage.");
-//var serializedThread = thread.Serialize();
-//Console.WriteLine("[DEBUG] Serialized thread ---\n");
-//Console.WriteLine(JsonSerializer.Serialize(serializedThread, new JsonSerializerOptions { WriteIndented = true }));
+//var serializedSession = await jokerAgent.SerializeSessionAsync(session);
+//Console.WriteLine("[DEBUG] Serialized session ---\n");
+//Console.WriteLine(JsonSerializer.Serialize(serializedSession, new JsonSerializerOptions { WriteIndented = true }));
 //// Assume user joins the chat again, system starts to load last conversation.
 //Console.WriteLine("\n[DEBUG] Now user join the chat again, system starting to load last conversation.\n");
-//var resumedThread = jokerAgent.DeserializeThread(serializedThread);
-//// Run the agent with the resumed thread.
+//var resumedSession = await jokerAgent.DeserializeSessionAsync(serializedSession);
+//// Run the agent with the resumed session.
 //userMessage = "Now tell the same joke in the voice of a pirate, and add some emojis to the joke.";
 //Console.WriteLine($"User> {userMessage}");
-//Console.WriteLine($"Agent> " + await jokerAgent.RunAsync(userMessage, resumedThread));
-//// Check the thread is stored in the vector store.
-//var messageStore = resumedThread.GetService<VectorChatMessageStore>()!;
-//Console.WriteLine($"\n[DEBUG] Thread is stored in vector store under key: {messageStore.ThreadDbKey}");
+//Console.WriteLine($"Agent> " + await jokerAgent.RunAsync(userMessage, resumedSession));
+//// Check the session is stored in the vector store.
+//var chatHistoryProvider = jokerAgent.GetService<VectorChatHistoryProvider>()!;
+//Console.WriteLine($"\n[DEBUG] Session is stored in vector store under key: {chatHistoryProvider.GetSessionDbKey(resumedSession)}");
 #endregion
 
 #region 05-Adding middleware to Agent
@@ -138,7 +135,7 @@ var openAIProvider = config.GetSection("OpenAI").Get<OpenAIProvider>();
 //        new ApiKeyCredential(openAIProvider.ApiKey),
 //        new OpenAIClientOptions { Endpoint = new Uri(openAIProvider.Endpoint) })
 //    .GetChatClient(openAIProvider.ModelId)
-//    .CreateAIAgent(
+//    .AsAIAgent(
 //        instructions: "You are an AI assistant that helps people find information.",
 //        tools: [AIFunctionFactory.Create(DateTimePlugin.GetDateTime)]);
 //// Step2. Create a middleware that logs the input and output messages
@@ -177,7 +174,8 @@ var agent = new OpenAIClient(
         new ApiKeyCredential(openAIProvider.ApiKey),
         new OpenAIClientOptions { Endpoint = new Uri(openAIProvider.Endpoint) })
     .GetChatClient(openAIProvider.ModelId)
-    .CreateAIAgent(instructions: "You are good at telling jokes.", name: "Joker")
+    .AsIChatClient()
+    .AsAIAgent(instructions: "You are good at telling jokes.", name: "Joker")
     .AsBuilder()
     .UseOpenTelemetry(sourceName: "agent-telemetry-source")
     .Build();

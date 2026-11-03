@@ -16,13 +16,13 @@ namespace SwitchCaseV1.Executors;
 internal sealed class EmailAssistantExecutor : Executor<DetectionResult, EmailResponse>
 {
     private readonly AIAgent _agent;
-    private readonly AgentThread _thread;
+    private readonly AgentSession _session;
 
     public EmailAssistantExecutor(AIAgent agent) : base("EmailAssistantExecutor")
     {
         // 创建 Agent 和对话线程
         this._agent = agent;
-        this._thread = this._agent.GetNewThread();
+        this._session = this._agent.CreateSessionAsync().GetAwaiter().GetResult();
     }
 
     public override async ValueTask<EmailResponse> HandleAsync(DetectionResult message, IWorkflowContext context, CancellationToken cancellationToken = default)
@@ -43,7 +43,7 @@ internal sealed class EmailAssistantExecutor : Executor<DetectionResult, EmailRe
         // 2️⃣ 调用 AI Agent 生成回复
         var agentResponse = await _agent.RunAsync(
             email.EmailContent,
-            _thread,
+            _session,
             cancellationToken: cancellationToken
         );
 

@@ -10,13 +10,13 @@ namespace ConditionalEdge.Executors;
 internal sealed class SpamDetectionExecutor : Executor<ChatMessage, DetectionResult>
 {
     private readonly AIAgent _agent;
-    private readonly AgentThread _thread;
+    private readonly AgentSession _session;
 
     public SpamDetectionExecutor(AIAgent agent) : base("SpamDetectionExecutor")
     {
         // 创建 Agent 和对话线程
         this._agent = agent;
-        this._thread = this._agent.GetNewThread();
+        this._session = this._agent.CreateSessionAsync().GetAwaiter().GetResult();
     }
 
     public override async ValueTask<DetectionResult> HandleAsync(ChatMessage message, IWorkflowContext context, CancellationToken cancellationToken = default)

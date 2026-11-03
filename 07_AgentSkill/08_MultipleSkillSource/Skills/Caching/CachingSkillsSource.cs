@@ -20,7 +20,7 @@ public sealed class CachingSkillsSource : AgentSkillsSource
         _ttl = ttl;
     }
 
-    public override async Task<IList<AgentSkill>> GetSkillsAsync(CancellationToken cancellationToken = default)
+    public override async Task<IList<AgentSkill>> GetSkillsAsync(AgentSkillsSourceContext context, CancellationToken cancellationToken = default)
     {
         if (_cache != null && DateTime.UtcNow < _cacheExpiresAt)
         {
@@ -36,7 +36,7 @@ public sealed class CachingSkillsSource : AgentSkillsSource
                 return _cache;
 
             Console.WriteLine("🔄 [CachingSource] 缓存未命中，从内层 Source 刷新...");
-            _cache = await _innerSource.GetSkillsAsync(cancellationToken);
+            _cache = await _innerSource.GetSkillsAsync(context, cancellationToken);
             _cacheExpiresAt = DateTime.UtcNow.Add(_ttl);
             Console.WriteLine($"✅ [CachingSource] 缓存已更新，{_cache.Count} 个技能，有效至 {_cacheExpiresAt.ToLocalTime():HH:mm:ss}");
             return _cache;

@@ -1,7 +1,7 @@
 ﻿using AgUIFrontend.Infrastructure;
 using AgUIFrontend.Tools;
 using Microsoft.Agents.AI;
-using Microsoft.Agents.AI.AGUI;
+using AGUI.Client;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using System.Threading;
@@ -40,7 +40,7 @@ using HttpClient httpClient = new()
 };
 
 // Step2. Create AG-UI Client
-var chatClient = new AGUIChatClient(httpClient, serverEndpoint);
+var chatClient = new AGUIChatClient(new AGUIChatClientOptions(httpClient, serverEndpoint));
 
 // Step3. Create AI Agent
 var agent = chatClient.AsAIAgent(
@@ -49,7 +49,7 @@ var agent = chatClient.AsAIAgent(
     tools: frontendTools);  // 👈 注册前端工具
 
 // Step4. Prepare for Conversation
-var session = await agent.GetNewSessionAsync();
+var session = await agent.CreateSessionAsync();
 var messages = new List<ChatMessage>()
 {
     new ChatMessage(ChatRole.System, """

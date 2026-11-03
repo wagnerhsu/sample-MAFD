@@ -1,5 +1,5 @@
 ﻿using AgUIClient.Infrastructure;
-using Microsoft.Agents.AI.AGUI;
+using AGUI.Client;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 
@@ -23,7 +23,7 @@ using HttpClient httpClient = new()
 };
 
 // Step2. Create AG-UI Client
-var chatClient = new AGUIChatClient(httpClient, serverEndpoint);
+var chatClient = new AGUIChatClient(new AGUIChatClientOptions(httpClient, serverEndpoint));
 
 // Step3. Create AI Agent
 var agent = chatClient.AsAIAgent(
@@ -31,7 +31,7 @@ var agent = chatClient.AsAIAgent(
     description: "AG-UI Client Agent");
 
 // Step4. Prepare for Conversation
-var session = await agent.GetNewSessionAsync();
+var session = await agent.CreateSessionAsync();
 var messages = new List<ChatMessage>()
 {
     new ChatMessage(ChatRole.System, "你是一个友好的AI助手，使用中文回答用户的问题。")

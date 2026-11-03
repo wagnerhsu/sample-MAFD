@@ -75,7 +75,9 @@ var unitConverterSkill = new AgentInlineSkill(
         double result = Math.Round(value * factor, 4);
         return JsonSerializer.Serialize(new { value, factor, result });
     });
-var skillsProvider = new AgentSkillsProvider(unitConverterSkill);
+var skillsProvider = new AgentSkillsProviderBuilder()
+    .UseSkill(unitConverterSkill)
+    .Build();
 Console.WriteLine("✅ AgentSkillsProvider 创建成功");
 Console.WriteLine("📂 自动注册工具: load_skill, read_skill_resource, run_skill_script");
 Console.WriteLine();

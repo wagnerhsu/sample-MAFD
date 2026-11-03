@@ -26,7 +26,9 @@ Console.OutputEncoding = System.Text.Encoding.UTF8;
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Step2 创建 Agent — 注入 SkillsProvider
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-var skillsProvider = new AgentSkillsProvider(new UnitConverterSkill());
+var skillsProvider = new AgentSkillsProviderBuilder()
+    .UseSkill(new UnitConverterSkill())
+    .Build();
 AIAgent agent = chatClient.AsAIAgent(new ChatClientAgentOptions
 {
     Name = "UnitConverterAgent",

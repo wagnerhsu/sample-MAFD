@@ -55,7 +55,7 @@ Console.WriteLine("✅ 工单处理流水线构建完成");
 var customerComplaint = "我真的很生气！上周我就付了年度会员费（订单号 #9981），但是到现在我的账号还是显示普通用户！我已经给你们发了两封邮件了都没人回。如果今天不解决，我就要退款并投诉你们！";
 Console.WriteLine($"📝 客户投诉内容:\n{customerComplaint}\n");
 Console.WriteLine("🚀 流水线启动...\n");
-await using (StreamingRun run = await InProcessExecution.StreamAsync(workflow, customerComplaint))
+await using (StreamingRun run = await InProcessExecution.Default.RunStreamingAsync(workflow, customerComplaint))
 {
     await run.TrySendMessageAsync(new TurnToken(emitEvents: true)); // Enable event emitting
 
@@ -64,7 +64,7 @@ await using (StreamingRun run = await InProcessExecution.StreamAsync(workflow, c
     int stepNumber = 1;
     await foreach (WorkflowEvent evt in run.WatchStreamAsync())
     {
-        if (evt is AgentRunUpdateEvent updatedEvent)
+        if (evt is AgentResponseUpdateEvent updatedEvent)
         {
             stageOutput.Append($"{updatedEvent.Data} ");
         }

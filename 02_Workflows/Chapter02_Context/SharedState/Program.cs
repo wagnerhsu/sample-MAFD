@@ -33,7 +33,7 @@ var aggregate = new AggregationExecutor(chatClient);
 // Step3. Create a Workflow
 var sharedStateWorkflow = new WorkflowBuilder(fileRead)
     .AddFanOutEdge(fileRead, [wordCounting, paragraphCounting])
-    .AddFanInEdge([wordCounting, paragraphCounting], aggregate)
+    .AddFanInBarrierEdge([wordCounting, paragraphCounting], aggregate)
     .WithOutputFrom(aggregate)
     .Build();
 
@@ -46,7 +46,7 @@ Console.WriteLine("━━━━━━━━━━━━━━━━━━━━�
 Console.WriteLine($"📂 演示文档: {documentKey}");
 Console.WriteLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
-await using (var run = await InProcessExecution.StreamAsync(sharedStateWorkflow, documentKey))
+await using (var run = await InProcessExecution.Default.RunStreamingAsync(sharedStateWorkflow, documentKey))
 {
     await foreach (WorkflowEvent evt in run.WatchStreamAsync())
     {

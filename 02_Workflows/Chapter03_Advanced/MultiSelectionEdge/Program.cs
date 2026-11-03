@@ -65,7 +65,7 @@ ContentSubmission[] submissions =
 //Console.WriteLine("🧪 批量执行 3 条稿件");
 //foreach (var submission in submissions)
 //{
-//    await using var run = await InProcessExecution.StreamAsync(workflow, submission);
+//    await using var run = await InProcessExecution.Default.RunStreamingAsync(workflow, submission);
 //    List<string> outputs = [];
 
 //    await foreach (WorkflowEvent evt in run.WatchStreamAsync())
@@ -82,7 +82,7 @@ foreach (var submission in submissions)
 {
     Console.WriteLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     Console.WriteLine($"稿件内容：{submission.Title}，类别：{submission.Category}");
-    await using (var spotlightRun = await InProcessExecution.StreamAsync(workflow, submission))
+    await using (var spotlightRun = await InProcessExecution.Default.RunStreamingAsync(workflow, submission))
     {
         await foreach (WorkflowEvent evt in spotlightRun.WatchStreamAsync())
         {

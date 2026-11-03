@@ -8,7 +8,7 @@ public class FunctionAgentFactory
 {
     public static ChatClientAgent CreateAnalystAgent(ChatClient client)
     {
-        return client.CreateAIAgent(
+        return client.AsAIAgent(
             """
                 You are a marketing analyst. Given a product description, identify:
                 - Key features
@@ -21,7 +21,7 @@ public class FunctionAgentFactory
 
     public static ChatClientAgent CreatWriterAgent(ChatClient client)
     {
-        return client.CreateAIAgent(
+        return client.AsAIAgent(
             """
                 You are a marketing copywriter. Given a block of text describing features, audience, and USPs,
                 compose a compelling marketing copy (like a newsletter section) that highlights these points.
@@ -33,7 +33,7 @@ public class FunctionAgentFactory
 
     public static ChatClientAgent CreateEditorAgent(ChatClient client)
     {
-        return client.CreateAIAgent(
+        return client.AsAIAgent(
             """
                 You are an editor. Given the draft copy, correct grammar, improve clarity, ensure consistent tone,
                 give format and make it polished. Output the final improved copy as a single text block.

@@ -49,7 +49,7 @@ Console.WriteLine("━━━━━━━━━━━━━━━━━━━━�
 Console.WriteLine("⏱️ 开始执行工作流...");
 Console.WriteLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 // 执行工作流
-await using (var run = await InProcessExecution.StreamAsync(workflow, input: productTask))
+await using (var run = await InProcessExecution.Default.RunStreamingAsync(workflow, input: productTask))
 {
     // 监听工作流事件
     await foreach (WorkflowEvent evt in run.WatchStreamAsync())

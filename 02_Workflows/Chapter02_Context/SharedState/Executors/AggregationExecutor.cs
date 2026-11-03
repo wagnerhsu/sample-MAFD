@@ -9,17 +9,17 @@ namespace SharedState.Executors;
 internal sealed class AggregationExecutor : Executor<FileStats>
 {
     private readonly AIAgent _aggregationAgent;
-    private readonly AgentThread _thread;
+    private readonly AgentSession _session;
     private readonly List<FileStats> _buffer = [];
 
     public AggregationExecutor(IChatClient chatClient) : base("AggregationExecutor")
     {
         // 创建 Agent 和对话线程
-        this._aggregationAgent = chatClient.CreateAIAgent(
+        this._aggregationAgent = chatClient.AsAIAgent(
             "你是一个专业的文档统计结果输出大师，你可以将收到的JSON格式统计结果（如总词数、总段落数 以及 统计时间等）进行友好的信息输出给用户。",
             "output_agent",
             "Output user friendly message based on input document stats result"); ;
-        this._thread = this._aggregationAgent.GetNewThread();
+        this._session = this._aggregationAgent.CreateSessionAsync().GetAwaiter().GetResult();
     }
 
     public override async ValueTask HandleAsync(FileStats message, IWorkflowContext context, CancellationToken cancellationToken = default)
@@ -40,7 +40,7 @@ internal sealed class AggregationExecutor : Executor<FileStats>
             统计时间 = DateTimeOffset.UtcNow
         };
 
-        var response = await this._aggregationAgent.RunAsync(JsonSerializer.Serialize(output), this._thread, cancellationToken: cancellationToken);
+        var response = await this._aggregationAgent.RunAsync(JsonSerializer.Serialize(output), this._session, cancellationToken: cancellationToken);
 
         await context.YieldOutputAsync(response.Text, cancellationToken);
     }

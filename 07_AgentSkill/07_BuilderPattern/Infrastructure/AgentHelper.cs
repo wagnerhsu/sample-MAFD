@@ -1,6 +1,7 @@
 ﻿using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using System.Diagnostics;
+using System.Text.Json;
 
 namespace AgentSkillDemo.Infrastructure;
 
@@ -29,7 +30,8 @@ internal class AgentHelper
     public static async Task<object?> RunScriptInSubProcessAsync(
         AgentFileSkill skill,
         AgentFileSkillScript script,
-        AIFunctionArguments arguments,
+        JsonElement? arguments,
+        IServiceProvider serviceProvider,
         CancellationToken cancellationToken)
     {
         if (!File.Exists(script.FullPath))
@@ -66,21 +68,18 @@ internal class AgentHelper
             startInfo.FileName = script.FullPath;
         }
 
-        if (arguments is not null)
+        if (arguments is { ValueKind: JsonValueKind.Object } args)
         {
-            foreach (var (key, value) in arguments)
+            foreach (var property in args.EnumerateObject())
             {
-                if (value is bool boolValue)
+                if (property.Value.ValueKind == JsonValueKind.True)
                 {
-                    if (boolValue)
-                    {
-                        startInfo.ArgumentList.Add(NormalizeKey(key));
-                    }
+                    startInfo.ArgumentList.Add(NormalizeKey(property.Name));
                 }
-                else if (value is not null)
+                else if (property.Value.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined))
                 {
-                    startInfo.ArgumentList.Add(NormalizeKey(key));
-                    startInfo.ArgumentList.Add(value.ToString()!);
+                    startInfo.ArgumentList.Add(NormalizeKey(property.Name));
+                    startInfo.ArgumentList.Add(property.Value.ToString()!);
                 }
             }
         }

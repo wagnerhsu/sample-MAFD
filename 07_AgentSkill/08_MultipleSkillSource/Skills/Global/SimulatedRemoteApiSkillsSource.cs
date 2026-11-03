@@ -16,7 +16,7 @@ public sealed class SimulatedRemoteApiSkillsSource : AgentSkillsSource
         _apiEndpoint = apiEndpoint;
     }
 
-    public override async Task<IList<AgentSkill>> GetSkillsAsync(CancellationToken cancellationToken = default)
+    public override async Task<IList<AgentSkill>> GetSkillsAsync(AgentSkillsSourceContext context, CancellationToken cancellationToken = default)
     {
         Console.WriteLine($"📡 [RemoteApiSource] 从 {_apiEndpoint} 拉取技能列表...");
 

@@ -84,7 +84,7 @@ var processingRecord = new ComplaintProcessingRecord
 };
 Console.WriteLine("🚀 开始执行投诉处理流水线...");
 Console.WriteLine(new string('━', 60));
-await using (var streaming = await InProcessExecution.StreamAsync(mainWorkflow, processingRecord))
+await using (var streaming = await InProcessExecution.Default.RunStreamingAsync(mainWorkflow, processingRecord))
 {
     await foreach (WorkflowEvent evt in streaming.WatchStreamAsync())
     {

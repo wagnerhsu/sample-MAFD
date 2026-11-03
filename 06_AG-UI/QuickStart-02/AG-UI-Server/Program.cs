@@ -28,7 +28,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.TypeInfoResolverChain.Add(MixedToolsJsonContext.Default));
 
 // Step2. Register AG-UI services
-builder.Services.AddAGUI();
+builder.Services.AddAGUIServer();
 
 var app = builder.Build();
 
@@ -71,7 +71,7 @@ var agent = chatClient.AsIChatClient()
 Console.WriteLine("✅ AI Agent 创建成功（混合工具模式）");
 
 // 映射 AG-UI 端点
-app.MapAGUI("/", agent);
+app.MapAGUIServer("/", agent);
 
 Console.WriteLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 Console.WriteLine("🚀 AG-UI Server (Mixed Tools) 已启动");

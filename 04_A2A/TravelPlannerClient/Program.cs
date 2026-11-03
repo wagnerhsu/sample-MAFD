@@ -24,20 +24,22 @@ var chatClient = new OpenAIClient(
     .AsIChatClient();
 
 // Step2. Define agent endpoints for A2A communication
+// 这里是各 Agent 服务的根地址，用于通过 well-known 地址发现 Agent Card
 var agentEndpoints = new[]
 {
-    "https://localhost:7021/a2a", // hotel agent 
-    "https://localhost:7011/a2a", // weather agent
-    "https://localhost:7031/a2a" // plan agent
+    "https://localhost:7021/", // hotel agent
+    "https://localhost:7011/", // weather agent
+    "https://localhost:7031/" // plan agent
 };
 
 // Step3. Collecting all AI Tools
+using HttpClient httpClient = new();
 var functionTools = new List<AIFunction>();
 foreach (var endpoint in agentEndpoints)
 {
     var resolver = new A2ACardResolver(new Uri(endpoint));
     var card = await resolver.GetAgentCardAsync();
-    var agent = card.AsAIAgent(); // Convert A2A Agent to AIAgent instance
+    var agent = card.AsAIAgent(httpClient); // Convert A2A Agent to AIAgent instance
 
     functionTools.AddRange(AgentFunctionHelper.CreateFunctionTools(agent, card));
 }

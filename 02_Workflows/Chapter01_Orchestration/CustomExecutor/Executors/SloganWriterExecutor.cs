@@ -12,7 +12,7 @@ namespace CustomExecutor.Executors;
 public class SloganWriterExecutor : Executor
 {
     private readonly AIAgent _agent;
-    private readonly AgentThread _thread;
+    private readonly AgentSession _session;
 
     /// <summary>
     /// 初始化文案生成 Executor
@@ -22,12 +22,12 @@ public class SloganWriterExecutor : Executor
     public SloganWriterExecutor(string id, IChatClient chatClient) : base(id)
     {
         // 配置 Agent 选项
-        ChatClientAgentOptions agentOptions = new(
-            instructions: "你是一名专业的文案撰写专家。你将根据产品特性创作简洁有力的宣传标语。"
-        )
+        ChatClientAgentOptions agentOptions = new()
         {
             ChatOptions = new()
             {
+                // 提示词通过 ChatOptions.Instructions 设置
+                Instructions = "你是一名专业的文案撰写专家。你将根据产品特性创作简洁有力的宣传标语。",
                 // 配置结构化输出：要求返回 SloganResult JSON 格式
                 ResponseFormat = ChatResponseFormat.ForJsonSchema<SloganResult>()
             }
@@ -35,16 +35,16 @@ public class SloganWriterExecutor : Executor
 
         // 创建 Agent 和对话线程
         this._agent = new ChatClientAgent(chatClient, agentOptions);
-        this._thread = this._agent.GetNewThread();
+        this._session = this._agent.CreateSessionAsync().GetAwaiter().GetResult();
     }
 
     /// <summary>
     /// 配置消息路由：支持两种输入类型
     /// </summary>
-    protected override RouteBuilder ConfigureRoutes(RouteBuilder routeBuilder) =>
-        routeBuilder
+    protected override ProtocolBuilder ConfigureProtocol(ProtocolBuilder protocolBuilder) =>
+        protocolBuilder.ConfigureRoutes(routeBuilder => routeBuilder
             .AddHandler<string, SloganResult>(this.HandleInitialTaskAsync)      // 处理初始任务
-            .AddHandler<FeedbackResult, SloganResult>(this.HandleFeedbackAsync);  // 处理反馈
+            .AddHandler<FeedbackResult, SloganResult>(this.HandleFeedbackAsync)); // 处理反馈
 
     /// <summary>
     /// 处理初始任务（首次生成）
@@ -57,7 +57,7 @@ public class SloganWriterExecutor : Executor
         Console.WriteLine($"✍️ [文案生成] 接收到任务: {message}");
 
         // 调用 Agent 生成标语
-        var result = await this._agent.RunAsync(message, this._thread, cancellationToken: cancellationToken);
+        var result = await this._agent.RunAsync(message, this._session, cancellationToken: cancellationToken);
 
         // 反序列化结构化输出
         var sloganResult = JsonSerializer.Deserialize<SloganResult>(result.Text)
@@ -92,7 +92,7 @@ public class SloganWriterExecutor : Executor
         Console.WriteLine($"🔄 [文案生成] 接收到反馈，评分: {feedback.Rating}/10");
 
         // 调用 Agent 改进标语（保持对话上下文）
-        var result = await this._agent.RunAsync(feedbackMessage, this._thread, cancellationToken: cancellationToken);
+        var result = await this._agent.RunAsync(feedbackMessage, this._session, cancellationToken: cancellationToken);
 
         var sloganResult = JsonSerializer.Deserialize<SloganResult>(result.Text)
             ?? throw new InvalidOperationException("❌ 反序列化标语结果失败");

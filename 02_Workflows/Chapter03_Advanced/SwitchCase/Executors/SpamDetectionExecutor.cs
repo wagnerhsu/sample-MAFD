@@ -10,13 +10,13 @@ namespace SwitchCaseV1.Executors;
 internal sealed class SpamDetectionExecutor : Executor<ChatMessage, DetectionResult>
 {
     private readonly AIAgent _agent;
-    private readonly AgentThread _thread;
+    private readonly AgentSession _session;
 
     public SpamDetectionExecutor(AIAgent agent) : base("SpamDetectionExecutor")
     {
         // 创建 Agent 和对话线程
         this._agent = agent;
-        this._thread = this._agent.GetNewThread();
+        this._session = this._agent.CreateSessionAsync().GetAwaiter().GetResult();
     }
 
     public override async ValueTask<DetectionResult> HandleAsync(ChatMessage message, IWorkflowContext context, CancellationToken cancellationToken = default)
@@ -38,7 +38,7 @@ internal sealed class SpamDetectionExecutor : Executor<ChatMessage, DetectionRes
         // 2️⃣ 调用 AI Agent 进行三分类检测
         var agentResponse = await _agent.RunAsync(
             message,
-            _thread,
+            _session,
             cancellationToken: cancellationToken
         );
 

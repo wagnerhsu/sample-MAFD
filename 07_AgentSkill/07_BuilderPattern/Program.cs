@@ -96,7 +96,7 @@ var skillsProvider = new AgentSkillsProviderBuilder()
     .UseSkill(packagingAdvisorSkill) // Class-Based Skill
     .UsePromptTemplate(logisticsPromptTemplate)
     .UseFileScriptRunner(AgentHelper.RunScriptInSubProcessAsync)
-    .UseScriptApproval(true) // Enbale script approval to ensure safety when executing scripts
+    .UseOptions(options => options.DisableRunSkillScriptApproval = false) // 保留脚本审批，确保执行脚本时的安全性
     .Build();
 var skillsContext = await AgentHelper.GetAgentSkillsContextAsync(chatClient, skillsProvider);
 var agent = chatClient.AsAIAgent(new ChatClientAgentOptions

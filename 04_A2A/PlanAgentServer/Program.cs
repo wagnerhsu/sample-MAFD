@@ -3,14 +3,17 @@ using A2A.AspNetCore;
 using PlanAgentServer;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// 注册 Agent 处理器与 Agent Card（同时装配 A2AServer、ITaskStore 等基础设施）
+builder.Services.AddA2AAgent<PlanAgent>(PlanAgent.GetAgentCard("https://localhost:7031/plans"));
+
 var app = builder.Build();
 
-// Create and register your agent
-var taskManager = new TaskManager();
-var agent = new PlanAgent();
-agent.Attach(taskManager);
-app.MapA2A(taskManager, "/plans");
-app.MapWellKnownAgentCard(taskManager, "/plans");
-app.MapHttpA2A(taskManager, "/plans");
+// Add JSON-RPC endpoint for A2A
+app.MapA2A("/plans");
+// Add HTTP+JSON (REST) endpoint for A2A
+app.MapHttpA2A(app.Services.GetRequiredService<IA2ARequestHandler>(), "/plans");
+// Add well-known agent card endpoint for A2A discovery
+app.MapWellKnownAgentCard(app.Services.GetRequiredService<AgentCard>());
 
 app.Run();

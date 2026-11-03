@@ -9,13 +9,13 @@ namespace ConditionalEdge.Executors;
 internal sealed class EmailAssistantExecutor : Executor<DetectionResult, EmailResponse>
 {
     private readonly AIAgent _agent;
-    private readonly AgentThread _thread;
+    private readonly AgentSession _session;
 
     public EmailAssistantExecutor(AIAgent agent) : base("EmailAssistantExecutor")
     {
         // 创建 Agent 和对话线程
         this._agent = agent;
-        this._thread = this._agent.GetNewThread();
+        this._session = this._agent.CreateSessionAsync().GetAwaiter().GetResult();
     }
 
     public override async ValueTask<EmailResponse> HandleAsync(DetectionResult message, IWorkflowContext context, CancellationToken cancellationToken = default)
@@ -25,7 +25,7 @@ internal sealed class EmailAssistantExecutor : Executor<DetectionResult, EmailRe
 
         var email = await context.ReadStateAsync<EmailMessage>(message.EmailId, scopeName: EmailStateConstants.EmailStateScope, cancellationToken)
             ?? throw new InvalidOperationException("找不到对应 Email 内容。");
-        var agentResponse = await _agent.RunAsync(email.EmailContent, _thread, cancellationToken: cancellationToken);
+        var agentResponse = await _agent.RunAsync(email.EmailContent, _session, cancellationToken: cancellationToken);
         var emailResponse =  JsonSerializer.Deserialize<EmailResponse>(agentResponse.Text)
             ?? throw new InvalidOperationException("无法解析 Email Assistant 响应。");
 

@@ -12,7 +12,7 @@ namespace CustomExecutor.Executors;
 public sealed class FeedbackExecutor : Executor<SloganResult>
 {
     private readonly AIAgent _agent;
-    private readonly AgentThread _thread;
+    private readonly AgentSession _session;
     private int _attempts = 0;
 
     /// <summary>
@@ -34,19 +34,19 @@ public sealed class FeedbackExecutor : Executor<SloganResult>
         : base(id)
     {
         // 配置 Agent 选项
-        ChatClientAgentOptions agentOptions = new(
-            instructions: "你是一名专业的文案审核专家。你将评估标语的质量，并提供改进建议。"
-        )
+        ChatClientAgentOptions agentOptions = new()
         {
             ChatOptions = new()
             {
+                // 提示词通过 ChatOptions.Instructions 设置
+                Instructions = "你是一名专业的文案审核专家。你将评估标语的质量，并提供改进建议。",
                 // 配置结构化输出：要求返回 FeedbackResult JSON 格式
                 ResponseFormat = ChatResponseFormat.ForJsonSchema<FeedbackResult>()
             }
         };
 
         this._agent = new ChatClientAgent(chatClient, agentOptions);
-        this._thread = this._agent.GetNewThread();
+        this._session = this._agent.CreateSessionAsync().GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -72,7 +72,7 @@ public sealed class FeedbackExecutor : Executor<SloganResult>
         Console.WriteLine($"🔍 [质量审核] 开始审核标语: {slogan.Slogan}");
 
         // 调用 Agent 进行审核
-        var response = await this._agent.RunAsync(reviewMessage, this._thread, cancellationToken: cancellationToken);
+        var response = await this._agent.RunAsync(reviewMessage, this._session, cancellationToken: cancellationToken);
 
         // 反序列化反馈结果
         var feedback = JsonSerializer.Deserialize<FeedbackResult>(response.Text)

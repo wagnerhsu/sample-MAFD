@@ -54,14 +54,14 @@ var priceQuery = new PriceQueryDto(
 // Step4. Create Workflow
 var workflow = new WorkflowBuilder(startExecutor)
         .AddFanOutEdge(startExecutor, [amazonExecutor, ebayExecutor, shopeeExecutor])
-        .AddFanInEdge([amazonExecutor, ebayExecutor, shopeeExecutor], strategyExecutor)
+        .AddFanInBarrierEdge([amazonExecutor, ebayExecutor, shopeeExecutor], strategyExecutor)
         .WithOutputFrom(strategyExecutor)
         .Build();
 Console.OutputEncoding = Encoding.UTF8;
 Console.WriteLine("✅ Fan-out/Fan-in Workflow 构建完成");
 
 // Step4. Execute the Workflow via StreamAsync to monitor progress
-await using (var run = await InProcessExecution.StreamAsync(workflow, priceQuery))
+await using (var run = await InProcessExecution.Default.RunStreamingAsync(workflow, priceQuery))
 {
     await foreach (var evt in run.WatchStreamAsync())
     {

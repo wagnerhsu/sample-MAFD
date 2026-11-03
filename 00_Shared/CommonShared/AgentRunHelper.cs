@@ -21,7 +21,7 @@ public static class AgentRunHelper
     {
         List<ChatMessage> results = new();
 
-        await using StreamingRun run = await InProcessExecution.StreamAsync(workflow, message);
+        await using StreamingRun run = await InProcessExecution.Default.RunStreamingAsync(workflow, message);
         await run.TrySendMessageAsync(new TurnToken(emitEvents: true));
         await foreach (WorkflowEvent evt in run.WatchStreamAsync())
         {

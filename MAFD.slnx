@@ -1,0 +1,77 @@
+<Solution>
+  <Folder Name="/00_Shared/">
+    <Project Path="00_Shared/CommonShared/CommonShared.csproj" />
+  </Folder>
+  <Folder Name="/01_Agents/">
+    <Project Path="01_Agents/Step01_QuickStart/AdvancedAgent/AdvancedAgent.csproj" />
+    <Project Path="01_Agents/Step01_QuickStart/BasicAgent/BasicAgent.csproj" />
+    <Project Path="01_Agents/Step02_Persistence/PersistAgentThread/PersistAgentThread.csproj" />
+  </Folder>
+  <Folder Name="/02_Workflows/" />
+  <Folder Name="/02_Workflows/Advanced/">
+    <Project Path="02_Workflows/Chapter03_Advanced/ConditionalEdge/ConditionalEdge.csproj" />
+    <Project Path="02_Workflows/Chapter03_Advanced/LoopFlow/LoopFlow.csproj" />
+    <Project Path="02_Workflows/Chapter03_Advanced/MapReduce/MapReduce.csproj" />
+    <Project Path="02_Workflows/Chapter03_Advanced/MultiSelectionEdge/MultiSelectionEdge.csproj" />
+    <Project Path="02_Workflows/Chapter03_Advanced/ParallelExecution/ParallelExecution.csproj" />
+    <Project Path="02_Workflows/Chapter03_Advanced/SubWorkflow/SubWorkflow.csproj" />
+    <Project Path="02_Workflows/Chapter03_Advanced/SwitchCase/SwitchCase.csproj" />
+  </Folder>
+  <Folder Name="/02_Workflows/Context/">
+    <Project Path="02_Workflows/Chapter02_Context/SharedState/SharedState.csproj" />
+  </Folder>
+  <Folder Name="/02_Workflows/Orchestration/">
+    <Project Path="02_Workflows/Chapter01_Orchestration/CustomExecutor/CustomExecutor.csproj" />
+    <Project Path="02_Workflows/Chapter01_Orchestration/MixedOrchestration/MixedOrchestration.csproj" />
+  </Folder>
+  <Folder Name="/03_Patterns/">
+    <Project Path="02_Workflows/Chapter01_Orchestration/HandOffMode/HandOffMode.csproj" />
+    <Project Path="02_Workflows/Chapter01_Orchestration/SequentialMode/SequentialMode.csproj" />
+  </Folder>
+  <Folder Name="/04_A2A/">
+    <Project Path="04_A2A/HotelAgentServer/HotelAgentServer.csproj" />
+    <Project Path="04_A2A/PlanAgentServer/PlanAgentServer.csproj" />
+    <Project Path="04_A2A/TravelPlannerClient/TravelPlannerClient.csproj" />
+    <Project Path="04_A2A/WeatherAgentServer/WeatherAgentServer.csproj" />
+  </Folder>
+  <Folder Name="/05_DevUI/">
+    <Project Path="05_DevUI/DevUISample/DevUIServer.csproj" />
+  </Folder>
+  <Folder Name="/06_AG-UI/" />
+  <Folder Name="/06_AG-UI/QuickStart-1/">
+    <Project Path="06_AG-UI/QuickStart-01/AG-UI-Client/AgUIClient.csproj" />
+    <Project Path="06_AG-UI/QuickStart-01/AG-UI-Server/AgUIServer.csproj" />
+  </Folder>
+  <Folder Name="/06_AG-UI/QuickStart-2/">
+    <Project Path="06_AG-UI/QuickStart-02/AG-UI-Client/AgUIFrontend.csproj" />
+    <Project Path="06_AG-UI/QuickStart-02/AG-UI-Server/AgUIBackend.csproj" />
+  </Folder>
+  <Folder Name="/07_AgentSkill/" />
+  <Folder Name="/07_AgentSkill/01_BasicSkills/">
+    <Project Path="07_AgentSkill/01_BasicSkills/AgentSkill_01_BasicSkills.csproj" />
+  </Folder>
+  <Folder Name="/07_AgentSkill/02_MultipleSkills/">
+    <Project Path="07_AgentSkill/02_MultipleSkills/AgentSkill_02_MultiSkills.csproj" />
+  </Folder>
+  <Folder Name="/07_AgentSkill/03_ScriptExecution-NonOfficial/">
+    <Project Path="07_AgentSkill/03_ScriptExecution_NonOffical/AgentSkill_03_ScriptExecutionV1.csproj" />
+  </Folder>
+  <Folder Name="/07_AgentSkill/04_ScriptExecution-Official/">
+    <Project Path="07_AgentSkill/04_ScriptExecution_Offical/AgentSkill_04_ScriptExecutionV2.csproj" />
+  </Folder>
+  <Folder Name="/07_AgentSkill/05_InlineSkills/">
+    <Project Path="07_AgentSkill/05_InlineSkills/AgentSkill_05_InlineSkills.csproj" />
+  </Folder>
+  <Folder Name="/07_AgentSkill/06_ClassBasedSkills/">
+    <Project Path="07_AgentSkill/06_StrongTypeSkills/AgentSkill_06_StrongTypeSkills.csproj" />
+  </Folder>
+  <Folder Name="/07_AgentSkill/07_BuilderPattern/">
+    <Project Path="07_AgentSkill/07_BuilderPattern/AgentSkill_07_BuilderPattern.csproj" />
+  </Folder>
+  <Folder Name="/07_AgentSkill/08_MultipleSkillSource/">
+    <Project Path="07_AgentSkill/08_MultipleSkillSource/AgentSkill_08_MultipleSkillSource.csproj" />
+  </Folder>
+  <Folder Name="/08_Declarative/">
+    <Project Path="08_Declarative/01_HelloDeclarative/Declarative_01.csproj" />
+  </Folder>
+</Solution>
